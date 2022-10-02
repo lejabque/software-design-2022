@@ -1,0 +1,3 @@
+/Users/vorkdenis/Documents/study/software-design-2022/lru_cache/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/vorkdenis/Documents/study/software-design-2022/lru_cache/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/vorkdenis/Documents/study/software-design-2022/lru_cache/cmake-build-debug/CMakeFiles/tests.dir

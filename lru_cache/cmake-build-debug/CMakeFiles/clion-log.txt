@@ -1,0 +1,25 @@
+"/Users/vorkdenis/Library/Application Support/JetBrains/Toolbox/apps/CLion/ch-0/213.7172.20/CLion.app/Contents/bin/cmake/mac/bin/cmake" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=/Users/vorkdenis/Library/Application Support/JetBrains/Toolbox/apps/CLion/ch-0/213.7172.20/CLion.app/Contents/bin/ninja/mac/ninja" -DCMAKE_TOOLCHAIN_FILE=~/vcpkg/scripts/buildsystems/vcpkg.cmake -G Ninja /Users/vorkdenis/Documents/study/software-design-2022/lru_cache
+-- Running vcpkg install
+Detecting compiler hash for triplet x64-osx...
+All requested packages are currently installed.
+Restored 0 packages from /Users/vorkdenis/.cache/vcpkg/archives in 36.03 us. Use --debug to see more details.
+
+Total elapsed time: 4.975 s
+
+The package gtest provides CMake targets:
+
+    find_package(GTest CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
+
+-- Running vcpkg install - done
+-- Enabling libc++...
+-- Enabling _GLIBCXX_DEBUG...
+-- Configuring done
+-- Generating done
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    CMAKE_TOOLCHAIN_FILE
+
+
+-- Build files have been written to: /Users/vorkdenis/Documents/study/software-design-2022/lru_cache/cmake-build-debug

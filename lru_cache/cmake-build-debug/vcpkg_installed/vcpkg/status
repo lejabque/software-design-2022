@@ -1,0 +1,27 @@
+Package: vcpkg-cmake-config
+Version: 2022-02-06
+Architecture: x64-osx
+Multi-Arch: same
+Abi: b50e8e2b5ce145b88f6a6c7f9baf9abdff9760eb99132abec8501869ec7260a9
+Type: Port
+Status: install ok installed
+
+Package: vcpkg-cmake
+Version: 2022-02-14
+Architecture: x64-osx
+Multi-Arch: same
+Abi: 55622d6a6188fc133cf1b60bac78d8547f20aa04f57f91b9bc3ed766dfb3b7c7
+Type: Port
+Status: install ok installed
+
+Package: gtest
+Version: 1.11.0
+Port-Version: 4
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-osx
+Multi-Arch: same
+Abi: 506de39aea88b4490839dd7043319a9e0ec6d7fe86f7d0e7b1eb77ead29af71b
+Description: GoogleTest and GoogleMock testing frameworks
+Type: Port
+Status: install ok installed
+
