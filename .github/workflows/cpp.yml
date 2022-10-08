@@ -36,7 +36,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build main
-      run: ${{ matrix.compilerSetter }} cd ${{ matrix.hw }} && ./ci-extra/build.sh ${{ matrix.build_type }}
+      run: cd ${{ matrix.hw }} && ${{ matrix.compilerSetter }} ./ci-extra/build.sh ${{ matrix.build_type }}
 
     - name: Test main
       run: cd ${{ matrix.hw }} && ./ci-extra/test.sh ${{ matrix.build_type }}
