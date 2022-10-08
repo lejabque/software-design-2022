@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/Users/vorkdenis/Documents/study/software-design-2022/lru_cache/cmake-build-debug",
-  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -isystem /Users/vorkdenis/Documents/study/software-design-2022/lru_cache/cmake-build-debug/vcpkg_installed/x64-osx/include -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk -Wall -Wextra -Wshadow=compatible-local -Wno-sign-compare -pedantic -stdlib=libc++ -D_GLIBCXX_DEBUG -std=gnu++2a -o CMakeFiles/tests.dir/tests.cpp.o -c /Users/vorkdenis/Documents/study/software-design-2022/lru_cache/tests.cpp",
-  "file": "/Users/vorkdenis/Documents/study/software-design-2022/lru_cache/tests.cpp"
-}
-]
