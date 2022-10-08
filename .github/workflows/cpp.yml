@@ -36,11 +36,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build main
-      run: ${{ matrix.compilerSetter }} ${{ matrix.hw }}/ci-extra/build.sh ${{ matrix.build_type }}
+      run: ${{ matrix.compilerSetter }} cd ${{ matrix.hw }} && ./ci-extra/build.sh ${{ matrix.build_type }}
 
     - name: Test main
-      run: ${{ matrix.hw }}/ci-extra/test.sh ${{ matrix.build_type }}
+      run: cd ${{ matrix.hw }} && ./ci-extra/test.sh ${{ matrix.build_type }}
 
     - if: ${{ matrix.build_type == 'RelWithDebInfo' }}
       name: Test main with valgrind
-      run: ${{ matrix.hw }}/ci-extra/test-valgrind.sh
+      run: cd ${{ matrix.hw }} && ./ci-extra/test-valgrind.sh
