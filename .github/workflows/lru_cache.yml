@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    name: Tests ${{ matrix.hw }} in ${{ matrix.build_type }} with ${{ matrix.compilerSetter }}
+    name: Tests lru_cache in ${{ matrix.build_type }} with ${{ matrix.compilerSetter }}
     runs-on: ubuntu-20.04
     container: 
       image: ubuntu:20.04
@@ -18,7 +18,6 @@ jobs:
       matrix:
         build_type: [Release, Debug, SanitizedDebug, RelWithDebInfo]
         compilerSetter: [CC=gcc CXX=g++, CC=clang CXX='clang++ -stdlib=libc++']
-        hw: [lru_cache]
 
     steps:
     - name: dependencies
@@ -38,11 +37,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build main
-      run: cd ${{ matrix.hw }} && ${{ matrix.compilerSetter }} ./ci-extra/build.sh ${{ matrix.build_type }}
+      run: cd lru_cache && ${{ matrix.compilerSetter }} ./ci-extra/build.sh ${{ matrix.build_type }}
 
     - name: Test main
-      run: cd ${{ matrix.hw }} && ./ci-extra/test.sh ${{ matrix.build_type }}
+      run: cd lru_cache && ./ci-extra/test.sh ${{ matrix.build_type }}
 
     - if: ${{ matrix.build_type == 'RelWithDebInfo' }}
       name: Test main with valgrind
-      run: cd ${{ matrix.hw }} && ./ci-extra/test-valgrind.sh
+      run: cd lru_cache && ./ci-extra/test-valgrind.sh
