@@ -2,8 +2,8 @@ package vkstats
 
 import (
 	"context"
-	"github.com/lejabque/software-design-2022/api_mocks/internal/vkapi"
-	"github.com/lejabque/software-design-2022/api_mocks/internal/vkstats/mocks"
+	"github.com/lejabque/software-design-2022/api_mocks/vkapi"
+	"github.com/lejabque/software-design-2022/api_mocks/vkstats/mocks"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"testing"
