@@ -1,7 +1,9 @@
 name: C++ CI
 
 on:
-  pull_request
+  pull_request:
+    paths:
+      - 'lru_cache/**'
 
 jobs:
   test:
