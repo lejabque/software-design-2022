@@ -2,7 +2,7 @@ package vkstats
 
 import (
 	"context"
-	"github.com/lejabque/software-design-2022/api_mocks/internal/vkapi"
+	"github.com/lejabque/software-design-2022/api_mocks/vkapi"
 	"time"
 )
 
@@ -12,7 +12,7 @@ type vkClient interface {
 }
 
 type Counter struct {
-	client vkClient
+	Client vkClient
 }
 
 func (c Counter) CountPostsDistribution(ctx context.Context, queryText string, hoursCnt int) ([]int64, error) {
@@ -23,7 +23,7 @@ func (c Counter) CountPostsDistribution(ctx context.Context, queryText string, h
 		hourNum := hoursCnt - i
 		startTime := now.Add(time.Hour * time.Duration(-hourNum))
 		endTime := now.Add(time.Hour * time.Duration(-hourNum+1))
-		posts, err := c.client.SearchPosts(ctx, queryText, startTime, endTime, startFrom, 0)
+		posts, err := c.Client.SearchPosts(ctx, queryText, startTime, endTime, startFrom, 0)
 		if err != nil {
 			return nil, err
 		}
