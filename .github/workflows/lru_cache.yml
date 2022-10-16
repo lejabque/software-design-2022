@@ -1,4 +1,4 @@
-name: C++ CI
+name: C++ CI for lru_cache
 
 on:
   pull_request:
