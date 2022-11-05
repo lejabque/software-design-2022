@@ -1,4 +1,4 @@
-package ru.akirakozov.sd.refactoring.servlet;
+package ru.dvorkozhokov.sd.refactoring.servlet;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -9,9 +9,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-/**
- * @author akirakozov
- */
 public class QueryServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -26,8 +23,8 @@ public class QueryServlet extends HttpServlet {
                     response.getWriter().println("<h1>Product with max price: </h1>");
 
                     while (rs.next()) {
-                        String  name = rs.getString("name");
-                        int price  = rs.getInt("price");
+                        String name = rs.getString("name");
+                        int price = rs.getInt("price");
                         response.getWriter().println(name + "\t" + price + "</br>");
                     }
                     response.getWriter().println("</body></html>");
@@ -48,8 +45,8 @@ public class QueryServlet extends HttpServlet {
                     response.getWriter().println("<h1>Product with min price: </h1>");
 
                     while (rs.next()) {
-                        String  name = rs.getString("name");
-                        int price  = rs.getInt("price");
+                        String name = rs.getString("name");
+                        int price = rs.getInt("price");
                         response.getWriter().println(name + "\t" + price + "</br>");
                     }
                     response.getWriter().println("</body></html>");
