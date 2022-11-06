@@ -13,12 +13,13 @@ public class ProductsHtmlService {
         products = db;
     }
 
-    public void addProduct(Product product) {
+    public void addProduct(Product product, PrintWriter writer) {
         try {
             products.addProduct(product);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        writer.println("OK");
     }
 
     public void getProducts(PrintWriter writer) {

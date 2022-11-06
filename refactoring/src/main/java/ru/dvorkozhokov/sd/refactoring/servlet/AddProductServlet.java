@@ -3,27 +3,28 @@ package ru.dvorkozhokov.sd.refactoring.servlet;
 import ru.dvorkozhokov.sd.refactoring.models.Product;
 import ru.dvorkozhokov.sd.refactoring.service.ProductsHtmlService;
 
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.io.PrintWriter;
 
-public class AddProductServlet extends HttpServlet {
-    private final ProductsHtmlService htmlService;
+public class AddProductServlet extends AbstractBaseProductServlet {
 
     public AddProductServlet(ProductsHtmlService service) {
-        htmlService = service;
+        super(service);
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String name = request.getParameter("name");
-        long price = Long.parseLong(request.getParameter("price"));
-
-        htmlService.addProduct(new Product(name, price));
-
-        response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().println("OK");
+    protected void doRequest(HttpServletRequest request, PrintWriter respWriter) {
+        var name = request.getParameter("name");
+        var price = request.getParameter("price");
+        if (name == null || price == null) {
+            throw new IllegalArgumentException("Name and price are required");
+        }
+        long parsedPrice;
+        try {
+            parsedPrice = Long.parseLong(price);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid price: " + price);
+        }
+        getHtmlService().addProduct(new Product(name, parsedPrice), respWriter);
     }
 }

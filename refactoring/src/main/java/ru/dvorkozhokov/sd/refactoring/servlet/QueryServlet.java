@@ -2,43 +2,33 @@ package ru.dvorkozhokov.sd.refactoring.servlet;
 
 import ru.dvorkozhokov.sd.refactoring.service.ProductsHtmlService;
 
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.io.PrintWriter;
 
-public class QueryServlet extends HttpServlet {
-    private final ProductsHtmlService htmlService;
+public class QueryServlet extends AbstractBaseProductServlet {
 
     public QueryServlet(ProductsHtmlService service) {
-        htmlService = service;
+        super(service);
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String command = request.getParameter("command");
-
-        var writer = response.getWriter();
+    protected void doRequest(HttpServletRequest request, PrintWriter respWriter) {
+        var command = request.getParameter("command");
         switch (command) {
             case "max":
-                htmlService.getMaxPriceProduct(writer);
+                htmlService.getMaxPriceProduct(respWriter);
                 break;
             case "min":
-                htmlService.getMinPriceProduct(writer);
+                htmlService.getMinPriceProduct(respWriter);
                 break;
             case "sum":
-                htmlService.getSumPrice(writer);
+                htmlService.getSumPrice(respWriter);
                 break;
             case "count":
-                htmlService.getCount(writer);
+                htmlService.getCount(respWriter);
                 break;
             default:
-                writer.println("Unknown command: " + command);
-                break;
+                throw new IllegalArgumentException("Unknown command: " + command);
         }
-
-        response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_OK);
     }
-
 }
