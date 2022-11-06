@@ -13,10 +13,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class Main {
+    private static final String DB_URL = "jdbc:sqlite:test.db"; // TODO: move to config
+
     public static void main(String[] args) throws Exception {
         ProductsHtmlService service;
         try {
-            var connection = DriverManager.getConnection("jdbc:sqlite:test.db");
+            var connection = DriverManager.getConnection(DB_URL);
             service = new ProductsHtmlService(new Products(connection));
         } catch (SQLException e) {
             throw new RuntimeException(e);

@@ -26,7 +26,7 @@ public class ProductsHtmlService {
             var res = products.getProducts();
             var sb = new StringBuilder();
             for (var product : res) {
-                sb.append(product.getName()).append("\t").append(product.getPrice()).append("</br>");
+                writeProduct(sb, product).append("</br>");
             }
             writeHtmlBody(writer, sb);
         } catch (Exception e) {
@@ -35,25 +35,13 @@ public class ProductsHtmlService {
     }
 
     public void getMaxPriceProduct(PrintWriter writer) {
-        Product res;
-        try {
-            res = products.getMaxPriceProduct();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        writeHtmlBody(writer, writeProduct(new StringBuilder().append("<h1>Product with max price: </h1>\n"),
-                res).append("</br>"));
+        var product = products.getMaxPriceProduct();
+        writeHtmlBody(writer, writeProduct(new StringBuilder().append("<h1>Product with max price: </h1>\n"), product).append("</br>"));
     }
 
     public void getMinPriceProduct(PrintWriter writer) {
-        Product res;
-        try {
-            res = products.getMinPriceProduct();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        writeHtmlBody(writer, writeProduct(new StringBuilder().append("<h1>Product with min price: </h1>\n"),
-                res).append("</br>"));
+        var product = products.getMinPriceProduct();
+        writeHtmlBody(writer, writeProduct(new StringBuilder().append("<h1>Product with min price: </h1>\n"), product).append("</br>"));
     }
 
     public void getSumPrice(PrintWriter writer) {
