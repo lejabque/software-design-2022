@@ -1,34 +1,30 @@
 package ru.dvorkozhokov.sd.refactoring.servlet;
 
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
+import ru.dvorkozhokov.sd.refactoring.models.Product;
+import ru.dvorkozhokov.sd.refactoring.service.ProductsHtmlService;
 
-public class AddProductServlet extends HttpServlet {
+import javax.servlet.http.HttpServletRequest;
+import java.io.PrintWriter;
+
+public class AddProductServlet extends AbstractBaseProductServlet {
+
+    public AddProductServlet(ProductsHtmlService service) {
+        super(service);
+    }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String name = request.getParameter("name");
-        long price = Long.parseLong(request.getParameter("price"));
-
-        try {
-            try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-                String sql = "INSERT INTO PRODUCT " +
-                        "(NAME, PRICE) VALUES (\"" + name + "\"," + price + ")";
-                Statement stmt = c.createStatement();
-                stmt.executeUpdate(sql);
-                stmt.close();
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    protected void doRequest(HttpServletRequest request, PrintWriter respWriter) {
+        var name = request.getParameter("name");
+        var price = request.getParameter("price");
+        if (name == null || price == null) {
+            throw new IllegalArgumentException("Name and price are required");
         }
-
-        response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().println("OK");
+        long parsedPrice;
+        try {
+            parsedPrice = Long.parseLong(price);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid price: " + price);
+        }
+        getHtmlService().addProduct(new Product(name, parsedPrice), respWriter);
     }
 }

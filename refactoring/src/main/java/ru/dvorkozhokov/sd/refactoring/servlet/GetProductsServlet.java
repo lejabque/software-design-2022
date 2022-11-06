@@ -1,40 +1,18 @@
 package ru.dvorkozhokov.sd.refactoring.servlet;
 
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import ru.dvorkozhokov.sd.refactoring.service.ProductsHtmlService;
 
-public class GetProductsServlet extends HttpServlet {
+import javax.servlet.http.HttpServletRequest;
+import java.io.PrintWriter;
+
+public class GetProductsServlet extends AbstractBaseProductServlet {
+
+    public GetProductsServlet(ProductsHtmlService service) {
+        super(service);
+    }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        try {
-            try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-                Statement stmt = c.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT * FROM PRODUCT");
-                response.getWriter().println("<html><body>");
-
-                while (rs.next()) {
-                    String name = rs.getString("name");
-                    int price = rs.getInt("price");
-                    response.getWriter().println(name + "\t" + price + "</br>");
-                }
-                response.getWriter().println("</body></html>");
-
-                rs.close();
-                stmt.close();
-            }
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_OK);
+    protected void doRequest(HttpServletRequest request, PrintWriter respWriter) {
+        getHtmlService().getProducts(respWriter);
     }
 }
