@@ -1,19 +1,18 @@
 package ru.dvorkozhokov.sd.refactoring.servlet;
 
-import ru.dvorkozhokov.sd.refactoring.database.Products;
 import ru.dvorkozhokov.sd.refactoring.models.Product;
+import ru.dvorkozhokov.sd.refactoring.service.ProductsHtmlService;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.*;
 
 public class AddProductServlet extends HttpServlet {
-    private final Products products;
+    private final ProductsHtmlService htmlService;
 
-    public AddProductServlet(Products db) {
-        products = db;
+    public AddProductServlet(ProductsHtmlService service) {
+        htmlService = service;
     }
 
     @Override
@@ -21,12 +20,7 @@ public class AddProductServlet extends HttpServlet {
         String name = request.getParameter("name");
         long price = Long.parseLong(request.getParameter("price"));
 
-        try {
-            products.addProduct(new Product(name, price));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
+        htmlService.addProduct(new Product(name, price));
 
         response.setContentType("text/html");
         response.setStatus(HttpServletResponse.SC_OK);

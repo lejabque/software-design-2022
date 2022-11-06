@@ -3,6 +3,7 @@ package ru.dvorkozhokov.sd.refactoring;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.dvorkozhokov.sd.refactoring.database.Products;
+import ru.dvorkozhokov.sd.refactoring.service.ProductsHtmlService;
 import ru.dvorkozhokov.sd.refactoring.servlet.AddProductServlet;
 import ru.dvorkozhokov.sd.refactoring.servlet.GetProductsServlet;
 import ru.dvorkozhokov.sd.refactoring.servlet.QueryServlet;
@@ -14,15 +15,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Collections;
 import java.util.Map;
 
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 
@@ -38,15 +36,17 @@ public class ProductsServletTest {
     }
 
     public ProductsServletTest() {
+        ProductsHtmlService service;
         try {
-            Connection connection = DriverManager.getConnection("jdbc:sqlite:test.db");
+            var connection = DriverManager.getConnection("jdbc:sqlite:test.db");
             products = new Products(connection);
+            service = new ProductsHtmlService(products);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        this.addServlet = new AddProductServlet(products);
-        this.getServlet = new GetProductsServlet(products);
-        this.queryServlet = new QueryServlet(products);
+        this.addServlet = new AddProductServlet(service);
+        this.getServlet = new GetProductsServlet(service);
+        this.queryServlet = new QueryServlet(service);
     }
 
     @Test
@@ -87,9 +87,7 @@ public class ProductsServletTest {
         addProduct("samsung", 500);
 
         var resp = servletGet(queryServlet, Map.of("command", "sum"), 200);
-        assertEquals("<html><body>\n" +
-                "Summary price: \n1500\n" +
-                "</body></html>\n", resp);
+        assertEquals("<html><body>\n" + "Summary price: \n1500\n" + "</body></html>\n", resp);
     }
 
 
@@ -99,9 +97,7 @@ public class ProductsServletTest {
         addProduct("samsung", 500);
 
         var resp = servletGet(queryServlet, Map.of("command", "count"), 200);
-        assertEquals("<html><body>\n" +
-                "Number of products: \n2\n" +
-                "</body></html>\n", resp);
+        assertEquals("<html><body>\n" + "Number of products: \n2\n" + "</body></html>\n", resp);
     }
 
     private String renderHtmlMap(String header, Map<String, String> map) {
@@ -115,14 +111,11 @@ public class ProductsServletTest {
     }
 
     private void addProduct(String name, int price) throws ServletException, IOException {
-        var resp = servletGet(addServlet, Map.of(
-                "name", name,
-                "price", Integer.toString(price)), 200);
+        var resp = servletGet(addServlet, Map.of("name", name, "price", Integer.toString(price)), 200);
         assertEquals("OK\n", resp);
     }
 
-    private String servletGet(HttpServlet servlet, Map<String, String> params, int expectedStatus)
-            throws ServletException, IOException {
+    private String servletGet(HttpServlet servlet, Map<String, String> params, int expectedStatus) throws ServletException, IOException {
         var request = mock(HttpServletRequest.class);
         var response = mock(HttpServletResponse.class);
         when(request.getMethod()).thenReturn("GET");

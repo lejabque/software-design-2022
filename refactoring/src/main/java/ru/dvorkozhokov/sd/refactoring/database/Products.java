@@ -18,13 +18,12 @@ public class Products {
         createTables();
     }
 
-    public int addProduct(Product product) throws SQLException {
+    public void addProduct(Product product) throws SQLException {
         String sql = String.format("INSERT INTO %s (NAME, PRICE) VALUES (\"%s\", %d)",
                 PRODUCTS_TABLE, product.getName(), product.getPrice());
         Statement stmt = connection.createStatement();
-        var cnt = stmt.executeUpdate(sql);
+        stmt.executeUpdate(sql);
         stmt.close();
-        return cnt;
     }
 
 
@@ -42,7 +41,7 @@ public class Products {
         return products;
     }
 
-    public Product getMaxProduct() throws SQLException {
+    public Product getMaxPriceProduct() throws SQLException {
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(String.format("SELECT * FROM %s ORDER BY PRICE DESC LIMIT 1", PRODUCTS_TABLE));
         Product product = null;
@@ -56,7 +55,7 @@ public class Products {
         return product;
     }
 
-    public Product getMinProduct() throws SQLException {
+    public Product getMinPriceProduct() throws SQLException {
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(String.format("SELECT * FROM %s ORDER BY PRICE LIMIT 1", PRODUCTS_TABLE));
         Product product = null;
@@ -70,7 +69,7 @@ public class Products {
         return product;
     }
 
-    public int getSum() throws SQLException {
+    public int getSumPrice() throws SQLException {
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(String.format("SELECT SUM(price) FROM %s", PRODUCTS_TABLE));
         int sum = 0;
