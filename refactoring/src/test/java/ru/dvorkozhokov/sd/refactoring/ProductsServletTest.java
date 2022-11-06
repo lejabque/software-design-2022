@@ -2,6 +2,7 @@ package ru.dvorkozhokov.sd.refactoring;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.dvorkozhokov.sd.refactoring.database.Products;
 import ru.dvorkozhokov.sd.refactoring.servlet.AddProductServlet;
 import ru.dvorkozhokov.sd.refactoring.servlet.GetProductsServlet;
 import ru.dvorkozhokov.sd.refactoring.servlet.QueryServlet;
@@ -26,35 +27,26 @@ import static org.mockito.Mockito.*;
 
 
 public class ProductsServletTest {
+    private final Products products;
     private final AddProductServlet addServlet;
     private final GetProductsServlet getServlet;
     private final QueryServlet queryServlet;
 
     @BeforeEach
-    public void resetTable() throws SQLException {
-        try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-            String sql = "DROP TABLE IF EXISTS PRODUCT";
-            Statement stmt = c.createStatement();
-            stmt.executeUpdate(sql);
-            stmt.close();
-        }
-
-        try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-            String sql = "CREATE TABLE IF NOT EXISTS PRODUCT"
-                    + "(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
-                    + " NAME           TEXT    NOT NULL, "
-                    + " PRICE          INT     NOT NULL)";
-            Statement stmt = c.createStatement();
-
-            stmt.executeUpdate(sql);
-            stmt.close();
-        }
+    public void resetTables() throws SQLException {
+        products.resetTables();
     }
 
     public ProductsServletTest() {
-        this.addServlet = new AddProductServlet();
-        this.getServlet = new GetProductsServlet();
-        this.queryServlet = new QueryServlet();
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:test.db");
+            products = new Products(connection);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        this.addServlet = new AddProductServlet(products);
+        this.getServlet = new GetProductsServlet(products);
+        this.queryServlet = new QueryServlet(products);
     }
 
     @Test
