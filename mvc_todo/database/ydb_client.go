@@ -17,8 +17,8 @@ import (
 // TODO: move to separated utils package?
 
 type YdbConfig struct {
-	Database string
-	Endpoint string
+	Endpoint string `json:"endpoint"`
+	Database string `json:"database"`
 }
 
 type YdbClient struct {
