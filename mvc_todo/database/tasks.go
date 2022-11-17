@@ -93,8 +93,8 @@ func (r *TaskRepo) GetTask(ctx context.Context, folder string, id uint64) (*Task
 		WHERE folder = $folder AND id = $id;
 	`, tasksTable)
 	res, err := r.ydb.ExecuteReadQuery(ctx, query,
-		table.ValueParam("$folder", types.OptionalValue(types.UTF8Value(folder))),
-		table.ValueParam("$id", types.OptionalValue(types.Uint64Value(id))),
+		table.ValueParam("$folder", types.UTF8Value(folder)),
+		table.ValueParam("$id", types.Uint64Value(id)),
 	)
 	if err != nil {
 		return nil, err
@@ -110,7 +110,7 @@ func (r *TaskRepo) GetTask(ctx context.Context, folder string, id uint64) (*Task
 	return task, res.Err()
 }
 
-func (r *TaskRepo) GetFolderTasks(ctx context.Context, folder string) ([]Task, error) {
+func (r *TaskRepo) GetFolderTasks(ctx context.Context, folder string) ([]*Task, error) {
 	query := fmt.Sprintf(`
 		DECLARE $folder AS Utf8;
 
@@ -119,19 +119,19 @@ func (r *TaskRepo) GetFolderTasks(ctx context.Context, folder string) ([]Task, e
 		WHERE folder = $folder;
 	`, tasksTable)
 	res, err := r.ydb.ExecuteReadQuery(ctx, query,
-		table.ValueParam("$folder", types.OptionalValue(types.UTF8Value(folder))),
+		table.ValueParam("$folder", types.UTF8Value(folder)),
 	)
 	if err != nil {
 		return nil, err
 	}
-	var tasks []Task
+	var tasks []*Task
 	for res.NextResultSet(ctx) {
 		for res.NextRow() {
 			task, err := r.parseTask(res)
 			if err != nil {
 				return nil, err
 			}
-			tasks = append(tasks, *task)
+			tasks = append(tasks, task)
 		}
 	}
 	return tasks, res.Err()
@@ -152,13 +152,15 @@ func (*TaskRepo) parseTask(res result.Result) (*Task, error) {
 }
 
 func (*TaskRepo) taskToParams(task *Task) []table.ParameterOption {
-	return []table.ParameterOption{table.ValueParam("$folder", types.OptionalValue(types.UTF8Value(task.Folder))),
-		table.ValueParam("$id", types.OptionalValue(types.Uint64Value(task.ID))),
-		table.ValueParam("$title", types.OptionalValue(types.UTF8Value(task.Title))),
-		table.ValueParam("$description", types.OptionalValue(types.UTF8Value(task.Description))),
-		table.ValueParam("$priority", types.OptionalValue(types.Int32Value(int32(task.Priority)))),
-		table.ValueParam("$deadline", types.OptionalValue(types.TimestampValue(uint64(task.Deadline.Unix())))),
-		table.ValueParam("$done_at", types.OptionalValue(types.TimestampValue(uint64(task.DoneAt.Unix()))))}
+	return []table.ParameterOption{
+		table.ValueParam("$folder", types.UTF8Value(task.Folder)),
+		table.ValueParam("$id", types.Uint64Value(task.ID)),
+		table.ValueParam("$title", types.UTF8Value(task.Title)),
+		table.ValueParam("$description", types.UTF8Value(task.Description)),
+		table.ValueParam("$priority", types.Int32Value(int32(task.Priority))),
+		table.ValueParam("$deadline", types.TimestampValue(uint64(task.Deadline.Unix()))),
+		table.ValueParam("$done_at", types.TimestampValue(uint64(task.DoneAt.Unix()))),
+	}
 }
 
 func (r *TaskRepo) DeleteTask(ctx context.Context, folder string, id uint64) error {
@@ -170,8 +172,8 @@ func (r *TaskRepo) DeleteTask(ctx context.Context, folder string, id uint64) err
 		WHERE folder = $folder AND id = $id;
 	`, tasksTable)
 	return r.ydb.ExecuteWriteQuery(ctx, query,
-		table.ValueParam("$folder", types.OptionalValue(types.UTF8Value(folder))),
-		table.ValueParam("$id", types.OptionalValue(types.Uint64Value(id))),
+		table.ValueParam("$folder", types.UTF8Value(folder)),
+		table.ValueParam("$id", types.Uint64Value(id)),
 	)
 }
 

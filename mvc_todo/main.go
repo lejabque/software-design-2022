@@ -1,10 +1,12 @@
 package main
 
 import (
-	"context"
+	"net/http"
 	"os"
 
+	"github.com/lejabque/software-design-2022/mvc_todo/controllers"
 	"github.com/lejabque/software-design-2022/mvc_todo/database"
+	"github.com/lejabque/software-design-2022/mvc_todo/views"
 )
 
 func main() {
@@ -20,9 +22,17 @@ func main() {
 	}
 	ydb := database.NewYdbClient(cfg, saKeyPath)
 	repo := database.NewTaskRepo(ydb)
+	controller := controllers.NewTaskController(repo, views.NewView("views/layouts"))
 
-	err := repo.ResetTable(context.Background())
-	if err != nil {
+	// bootstrap, err := template.ParseFiles(layoutFiles()...)
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	http.HandleFunc("/", controller.Index)
+	http.HandleFunc("/index", controller.Index)
+	http.HandleFunc("/create", controller.CreateTask)
+	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}
 }
