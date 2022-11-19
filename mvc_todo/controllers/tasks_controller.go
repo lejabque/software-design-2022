@@ -2,11 +2,12 @@ package controllers
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/lejabque/software-design-2022/mvc_todo/database"
 	"github.com/lejabque/software-design-2022/mvc_todo/views"
+	"golang.org/x/exp/slices"
 )
 
 type tasksRepo interface {
@@ -30,28 +31,45 @@ func (c *TaskController) validateTask(task *database.Task) error {
 	if task.Title == "" {
 		return NewUserError("title is required")
 	}
-	if task.Folder == "" {
-		return NewUserError("folder is required")
-	}
+	// todo: implement tasks folders
+	// if task.Folder == "" {
+	// 	return NewUserError("folder is required")
+	// }
 	return nil
 }
 
+func (c *TaskController) taskFromForm(r *http.Request) (*database.Task, error) {
+	var deadline time.Time
+	if deadlineStr := r.FormValue("deadline"); deadlineStr != "" {
+		var err error
+		deadline, err = time.Parse("2006-01-02", deadlineStr)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &database.Task{
+		Folder:      r.FormValue("folder"),
+		Title:       r.FormValue("title"),
+		Description: r.FormValue("description"),
+		Priority:    database.PriorityFromString(r.FormValue("priority")),
+		Deadline:    deadline,
+	}, nil
+}
+
 func (c *TaskController) createTask(w http.ResponseWriter, r *http.Request) error {
-	var task database.Task
-	err := json.Unmarshal([]byte(r.FormValue("task")), &task)
-	if err != nil {
-		return NewUserError("invalid task: %s", err)
-	}
-	err = c.validateTask(&task)
+	task, err := c.taskFromForm(r)
 	if err != nil {
 		return err
 	}
-	err = c.tasks.CreateTask(r.Context(), &task)
+	err = c.validateTask(task)
 	if err != nil {
 		return err
 	}
-	// TODO: render ?
-	return c.views.New.Render(w, nil)
+	err = c.tasks.CreateTask(r.Context(), task)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
@@ -59,6 +77,7 @@ func (c *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), ErrorCode(err))
 	}
+	http.Redirect(w, r, "/index", http.StatusSeeOther)
 }
 
 func (c *TaskController) index(w http.ResponseWriter, r *http.Request) error {
@@ -66,7 +85,26 @@ func (c *TaskController) index(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return c.views.Index.Render(w, tasks)
+	type RenderTask struct {
+		Title       string
+		Description string
+		Priority    string
+	}
+	var data struct {
+		Tasks []*RenderTask
+	}
+	// sort tasks by priority, asc
+	slices.SortFunc(tasks, func(left, right *database.Task) bool {
+		return left.Priority > right.Priority
+	})
+	for _, task := range tasks {
+		data.Tasks = append(data.Tasks, &RenderTask{
+			Title:       task.Title,
+			Description: task.Description,
+			Priority:    database.PriorityToString(task.Priority),
+		})
+	}
+	return c.views.Index.Render(w, data)
 }
 
 func (c *TaskController) Index(w http.ResponseWriter, r *http.Request) {

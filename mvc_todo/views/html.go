@@ -28,7 +28,7 @@ func NewView(layoutDir string) View {
 }
 
 func NewPage(layoutDir string, layout string) Page {
-	files, err := filepath.Glob(layoutDir + "/*.gohtml")
+	files, err := filepath.Glob(layoutDir + "/*.html")
 	if err != nil {
 		panic(err)
 	}

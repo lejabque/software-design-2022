@@ -1,0 +1,47 @@
+{{define "index"}}
+<html>
+
+<head>
+  <h1>Tasks Manager</h1>
+</head>
+
+<body>
+  <!-- <div style="width: 200px; height: 500px; background: #333; color: white; float: right;">
+    {{template "sidebar"}}
+  </div> -->
+
+  <body>
+    {{ range .Tasks }}
+    <h2>{{ .Title }}</h2>
+    <p>Description: {{ .Description }}</p>
+    <p>Priority: {{ .Priority }}</p>
+    {{ end }}
+  </body>
+</body>
+<form method="post" action="/create">
+  <!-- <div>
+    <label for="folder">Folder: </label>
+    <input name="folder" id="folder" value="Folder" />
+  </div> -->
+  <div>
+    <label for="title">Title: </label>
+    <input name="title" id="title" value="Title" />
+  </div>
+  <div>
+    <label for="description">Description: </label>
+    <input name="description" id="description" value="Description" />
+  </div>
+  <div>
+    <label for="priority">Priority: </label>
+    <input name="priority" id="priority" value="Priority" />
+  </div>
+  <div>
+    <button>Create new task</button>
+  </div>
+</form>
+
+
+</html>
+{{end}}
+
+{{define "sidebar"}}{{end}}

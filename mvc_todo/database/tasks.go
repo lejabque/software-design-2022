@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -42,6 +43,29 @@ func NewTaskRepo(ydb *YdbClient) *TaskRepo {
 	return &TaskRepo{ydb: ydb}
 }
 
+func PriorityFromString(s string) Priority {
+	s = strings.ToLower(s)
+	switch s {
+	case "low":
+		return Low
+	case "high":
+		return High
+	default:
+		return Normal
+	}
+}
+
+func PriorityToString(p Priority) string {
+	switch p {
+	case Low:
+		return "low"
+	case High:
+		return "high"
+	default:
+		return "normal"
+	}
+}
+
 func (r *TaskRepo) CreateTask(ctx context.Context, task *Task) error {
 	query := fmt.Sprintf(`
 		DECLARE $folder AS Utf8;
@@ -49,15 +73,15 @@ func (r *TaskRepo) CreateTask(ctx context.Context, task *Task) error {
 		DECLARE $title AS Utf8;
 		DECLARE $description AS Utf8;
 		DECLARE $priority AS Int32;
-		DECLARE $deadline AS Timestamp;
-		DECLARE $done_at AS Timestamp;
+		--DECLARE $deadline AS Timestamp;
+		--DECLARE $done_at AS Timestamp;
 
-		INSERT INTO %s (folder, id, title, description, priority, deadline, done_at)
-		VALUES ($folder, $id, $title, $description, $priority, $deadline, $done_at);
+		INSERT INTO %s (folder, id, title, description, priority)
+		VALUES ($folder, $id, $title, $description, $priority);
 	`, tasksTable)
-	id := task.ID
-	if id == 0 {
-		id = uint64(uuid.New().ID())
+	// todo: copy task to avoid mutation of input
+	if task.ID == 0 {
+		task.ID = uint64(uuid.New().ID())
 	}
 	return r.ydb.ExecuteWriteQuery(ctx, query, r.taskToParams(task)...)
 }
@@ -137,6 +161,28 @@ func (r *TaskRepo) GetFolderTasks(ctx context.Context, folder string) ([]*Task, 
 	return tasks, res.Err()
 }
 
+func (r *TaskRepo) ListFolders(ctx context.Context) ([]string, error) {
+	query := fmt.Sprintf(`
+		SELECT DISTINCT folder
+		FROM %s;
+	`, tasksTable)
+	res, err := r.ydb.ExecuteReadQuery(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	var folders []string
+	for res.NextResultSet(ctx) {
+		for res.NextRow() {
+			var folder string
+			if err := res.Scan(&folder); err != nil {
+				return nil, err
+			}
+			folders = append(folders, folder)
+		}
+	}
+	return folders, res.Err()
+}
+
 func (*TaskRepo) parseTask(res result.Result) (*Task, error) {
 	task := &Task{}
 	err := res.ScanWithDefaults(
@@ -158,8 +204,8 @@ func (*TaskRepo) taskToParams(task *Task) []table.ParameterOption {
 		table.ValueParam("$title", types.UTF8Value(task.Title)),
 		table.ValueParam("$description", types.UTF8Value(task.Description)),
 		table.ValueParam("$priority", types.Int32Value(int32(task.Priority))),
-		table.ValueParam("$deadline", types.TimestampValue(uint64(task.Deadline.Unix()))),
-		table.ValueParam("$done_at", types.TimestampValue(uint64(task.DoneAt.Unix()))),
+		// table.ValueParam("$deadline", types.TimestampValueFromTime(task.Deadline)),
+		// table.ValueParam("$done_at", types.TimestampValueFromTime(task.DoneAt)),
 	}
 }
 
@@ -185,6 +231,7 @@ func (r *TaskRepo) ResetTable(ctx context.Context) error {
 		options.WithColumn("description", types.Optional(types.TypeUTF8)),
 		options.WithColumn("priority", types.Optional(types.TypeInt32)),
 		options.WithColumn("deadline", types.Optional(types.TypeTimestamp)),
+		options.WithColumn("created_at", types.Optional(types.TypeTimestamp)),
 		options.WithColumn("done_at", types.Optional(types.TypeTimestamp)),
 		options.WithPrimaryKeyColumn("folder", "id"),
 	)
