@@ -18,6 +18,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0
 	github.com/jonboulle/clockwork v0.2.2 // indirect
+	github.com/julienschmidt/httprouter v1.3.0
 	github.com/yandex-cloud/ydb-go-sdk v1.5.2
 	github.com/ydb-platform/ydb-go-genproto v0.0.0-20220922065549-66df47a830ba // indirect
 	github.com/ydb-platform/ydb-go-yc v0.9.1

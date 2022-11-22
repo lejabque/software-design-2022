@@ -73,11 +73,11 @@ func (r *TaskRepo) CreateTask(ctx context.Context, task *Task) error {
 		DECLARE $title AS Utf8;
 		DECLARE $description AS Utf8;
 		DECLARE $priority AS Int32;
-		--DECLARE $deadline AS Timestamp;
-		--DECLARE $done_at AS Timestamp;
+		DECLARE $deadline AS Timestamp;
+		DECLARE $done_at AS Timestamp;
 
-		INSERT INTO %s (folder, id, title, description, priority)
-		VALUES ($folder, $id, $title, $description, $priority);
+		INSERT INTO %s (folder, id, title, description, priority, deadline, done_at)
+		VALUES ($folder, $id, $title, $description, $priority, $deadline, $done_at);
 	`, tasksTable)
 	// todo: copy task to avoid mutation of input
 	if task.ID == 0 {
@@ -204,22 +204,26 @@ func (*TaskRepo) taskToParams(task *Task) []table.ParameterOption {
 		table.ValueParam("$title", types.UTF8Value(task.Title)),
 		table.ValueParam("$description", types.UTF8Value(task.Description)),
 		table.ValueParam("$priority", types.Int32Value(int32(task.Priority))),
-		// table.ValueParam("$deadline", types.TimestampValueFromTime(task.Deadline)),
-		// table.ValueParam("$done_at", types.TimestampValueFromTime(task.DoneAt)),
+		table.ValueParam("$deadline", types.TimestampValueFromTime(task.Deadline)),
+		table.ValueParam("$done_at", types.TimestampValueFromTime(task.DoneAt)),
 	}
 }
 
-func (r *TaskRepo) DeleteTask(ctx context.Context, folder string, id uint64) error {
+func (r *TaskRepo) CompleteTask(ctx context.Context, folder string, id uint64) error {
 	query := fmt.Sprintf(`
 		DECLARE $folder AS Utf8;
 		DECLARE $id AS Uint64;
+		DECLARE $done_at AS Timestamp;
 
-		DELETE FROM %s
+		UPDATE %s
+		SET done_at = $done_at
 		WHERE folder = $folder AND id = $id;
 	`, tasksTable)
+	now := time.Now()
 	return r.ydb.ExecuteWriteQuery(ctx, query,
 		table.ValueParam("$folder", types.UTF8Value(folder)),
 		table.ValueParam("$id", types.Uint64Value(id)),
+		table.ValueParam("$done_at", types.TimestampValueFromTime(now)),
 	)
 }
 

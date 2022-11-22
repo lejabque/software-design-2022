@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/julienschmidt/httprouter"
 	"github.com/lejabque/software-design-2022/mvc_todo/controllers"
 	"github.com/lejabque/software-design-2022/mvc_todo/database"
 	"github.com/lejabque/software-design-2022/mvc_todo/views"
@@ -38,14 +39,30 @@ func main() {
 	}
 
 	ydb := database.NewYdbClient(cfg.Ydb, saKeyPath)
-	repo := database.NewTaskRepo(ydb)
-	controller := controllers.NewTaskController(repo, views.NewView("views/layouts"))
+	tasksRepo := database.NewTaskRepo(ydb)
+	foldersRepo := database.NewFoldersRepo(ydb)
+	views := views.NewView("views/layouts")
+	tasksController := controllers.NewTaskController(tasksRepo, views)
+	foldersController := controllers.NewFolderController(foldersRepo, views)
 
 	port := os.Args[2]
-	http.HandleFunc("/", controller.Index)
-	http.HandleFunc("/index", controller.Index)
-	http.HandleFunc("/create", controller.CreateTask)
-	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil); err != nil {
+	router := httprouter.New()
+	router.GET("/", foldersController.ListFolders)
+	router.GET("/folders", foldersController.ListFolders)
+	router.POST("/folders/:name/create", foldersController.CreateFolder)
+	router.POST("/folders/:name/delete", foldersController.DeleteFolder)
+
+	router.GET("/folders/:name/tasks", tasksController.ListTasks)
+	router.GET("/folders/:name/tasks/:id/create", tasksController.CreateTask)
+	router.GET("/folders/:name/tasks/:id/complete", tasksController.CompleteTask)
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), router); err != nil {
 		panic(err)
 	}
+
+	// http.HandleFunc("/", foldersController.Index)
+	// http.HandleFunc("/index", foldersController.Index)
+	// http.HandleFunc("/create", controller.CreateTask)
+	// if err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil); err != nil {
+	// 	panic(err)
+	// }
 }

@@ -3,8 +3,10 @@ package controllers
 import (
 	"context"
 	"net/http"
+	"strconv"
 	"time"
 
+	"github.com/julienschmidt/httprouter"
 	"github.com/lejabque/software-design-2022/mvc_todo/database"
 	"github.com/lejabque/software-design-2022/mvc_todo/views"
 	"golang.org/x/exp/slices"
@@ -15,7 +17,7 @@ type tasksRepo interface {
 	GetFolderTasks(ctx context.Context, folder string) ([]*database.Task, error)
 	GetTask(ctx context.Context, folder string, id uint64) (*database.Task, error)
 	UpdateTask(ctx context.Context, task *database.Task) error
-	DeleteTask(ctx context.Context, folder string, id uint64) error
+	CompleteTask(ctx context.Context, folder string, id uint64) error
 }
 
 type TaskController struct {
@@ -48,7 +50,6 @@ func (c *TaskController) taskFromForm(r *http.Request) (*database.Task, error) {
 		}
 	}
 	return &database.Task{
-		Folder:      r.FormValue("folder"),
 		Title:       r.FormValue("title"),
 		Description: r.FormValue("description"),
 		Priority:    database.PriorityFromString(r.FormValue("priority")),
@@ -56,11 +57,13 @@ func (c *TaskController) taskFromForm(r *http.Request) (*database.Task, error) {
 	}, nil
 }
 
-func (c *TaskController) createTask(w http.ResponseWriter, r *http.Request) error {
+func (c *TaskController) createTask(w http.ResponseWriter, r *http.Request, ps httprouter.Params) error {
+	folder := ps.ByName("name")
 	task, err := c.taskFromForm(r)
 	if err != nil {
 		return err
 	}
+	task.Folder = folder
 	err = c.validateTask(task)
 	if err != nil {
 		return err
@@ -72,16 +75,33 @@ func (c *TaskController) createTask(w http.ResponseWriter, r *http.Request) erro
 	return nil
 }
 
-func (c *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
-	err := c.createTask(w, r)
-	if err != nil {
-		http.Error(w, err.Error(), ErrorCode(err))
-	}
-	http.Redirect(w, r, "/index", http.StatusSeeOther)
+func (c *TaskController) CreateTask(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	WrapHandler(c.createTask)(w, r, ps)
+	// TODO: redirect?
 }
 
-func (c *TaskController) index(w http.ResponseWriter, r *http.Request) error {
-	tasks, err := c.tasks.GetFolderTasks(r.Context(), r.FormValue("folder"))
+func (c *TaskController) completeTask(w http.ResponseWriter, r *http.Request, ps httprouter.Params) error {
+	folder := ps.ByName("name")
+	if folder == "" {
+		return NewUserError("folder name is required")
+	}
+	id := ps.ByName("id")
+	if id == "" {
+		return NewUserError("task id is required")
+	}
+	taskId, err := strconv.Atoi(id)
+	if err != nil {
+		return NewUserError("invalid id")
+	}
+	return c.tasks.CompleteTask(r.Context(), folder, uint64(taskId))
+}
+
+func (c *TaskController) CompleteTask(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	WrapHandler(c.completeTask)(w, r, ps)
+}
+
+func (c *TaskController) listTasks(w http.ResponseWriter, r *http.Request, ps httprouter.Params) error {
+	tasks, err := c.tasks.GetFolderTasks(r.Context(), ps.ByName("name"))
 	if err != nil {
 		return err
 	}
@@ -107,9 +127,6 @@ func (c *TaskController) index(w http.ResponseWriter, r *http.Request) error {
 	return c.views.Index.Render(w, data)
 }
 
-func (c *TaskController) Index(w http.ResponseWriter, r *http.Request) {
-	err := c.index(w, r)
-	if err != nil {
-		http.Error(w, err.Error(), ErrorCode(err))
-	}
+func (c *TaskController) ListTasks(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	WrapHandler(c.listTasks)(w, r, ps)
 }

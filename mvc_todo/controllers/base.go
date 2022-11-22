@@ -3,6 +3,8 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 type CustomError struct {
@@ -34,4 +36,14 @@ func ErrorCode(err error) int {
 		return customErr.Code()
 	}
 	return http.StatusInternalServerError
+}
+
+// TODO: middleware?
+func WrapHandler(handler func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) error) func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		err := handler(w, r, ps)
+		if err != nil {
+			http.Error(w, err.Error(), ErrorCode(err))
+		}
+	}
 }
