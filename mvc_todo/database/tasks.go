@@ -66,7 +66,14 @@ func PriorityToString(p Priority) string {
 	}
 }
 
-func (r *TaskRepo) CreateTask(ctx context.Context, task *Task) error {
+func timestampFromTime(t time.Time) types.Value {
+	if t.IsZero() {
+		t = time.Unix(0, 0)
+	}
+	return types.TimestampValueFromTime(t)
+}
+
+func (r *TaskRepo) CreateTask(ctx context.Context, task *Task) (uint64, error) {
 	query := fmt.Sprintf(`
 		DECLARE $folder AS Utf8;
 		DECLARE $id AS Uint64;
@@ -83,7 +90,7 @@ func (r *TaskRepo) CreateTask(ctx context.Context, task *Task) error {
 	if task.ID == 0 {
 		task.ID = uint64(uuid.New().ID())
 	}
-	return r.ydb.ExecuteWriteQuery(ctx, query, r.taskToParams(task)...)
+	return task.ID, r.ydb.ExecuteWriteQuery(ctx, query, r.taskToParams(task)...)
 }
 
 func (r *TaskRepo) UpdateTask(ctx context.Context, task *Task) error {
@@ -204,8 +211,8 @@ func (*TaskRepo) taskToParams(task *Task) []table.ParameterOption {
 		table.ValueParam("$title", types.UTF8Value(task.Title)),
 		table.ValueParam("$description", types.UTF8Value(task.Description)),
 		table.ValueParam("$priority", types.Int32Value(int32(task.Priority))),
-		table.ValueParam("$deadline", types.TimestampValueFromTime(task.Deadline)),
-		table.ValueParam("$done_at", types.TimestampValueFromTime(task.DoneAt)),
+		table.ValueParam("$deadline", timestampFromTime(task.Deadline)),
+		table.ValueParam("$done_at", timestampFromTime(task.DoneAt)),
 	}
 }
 
@@ -223,7 +230,7 @@ func (r *TaskRepo) CompleteTask(ctx context.Context, folder string, id uint64) e
 	return r.ydb.ExecuteWriteQuery(ctx, query,
 		table.ValueParam("$folder", types.UTF8Value(folder)),
 		table.ValueParam("$id", types.Uint64Value(id)),
-		table.ValueParam("$done_at", types.TimestampValueFromTime(now)),
+		table.ValueParam("$done_at", timestampFromTime(now)),
 	)
 }
 

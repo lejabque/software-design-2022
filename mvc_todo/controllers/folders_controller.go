@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -38,8 +39,12 @@ func (c *FolderController) createFolder(w http.ResponseWriter, r *http.Request, 
 }
 
 func (c *FolderController) CreateFolder(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	WrapHandler(c.createFolder)(w, r, ps)
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	err := c.createFolder(w, r, ps)
+	if err != nil {
+		http.Error(w, err.Error(), ErrorCode(err))
+	} else {
+		http.Redirect(w, r, fmt.Sprintf("/folders/%s/tasks", ps.ByName("name")), http.StatusSeeOther)
+	}
 }
 
 func (c *FolderController) deleteFolder(w http.ResponseWriter, r *http.Request, ps httprouter.Params) error {
@@ -78,7 +83,7 @@ func (c *FolderController) listFolders(w http.ResponseWriter, r *http.Request, p
 			Name: f.Name,
 		})
 	}
-	return c.views.Index.Render(w, data)
+	return c.views.Folders.Render(w, data)
 }
 
 func (c *FolderController) ListFolders(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

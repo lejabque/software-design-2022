@@ -7,13 +7,8 @@ import (
 )
 
 type View struct {
-	Index  Page
-	Show   Page
-	New    Page
-	Create Page
-	Edit   Page
-	Update Page
-	Delete Page
+	Folders Page
+	Tasks   Page
 }
 
 type Page struct {
@@ -23,7 +18,8 @@ type Page struct {
 
 func NewView(layoutDir string) View {
 	return View{
-		Index: NewPage(layoutDir, "index"),
+		Folders: NewPage(layoutDir, "Folders"),
+		Tasks:   NewPage(layoutDir, "Tasks"),
 	}
 }
 

@@ -1,0 +1,38 @@
+{{define "Tasks"}}
+<html>
+
+<head>
+  <h1>Tasks Manager</h1>
+</head>
+
+<body>
+  {{ range .Tasks }}
+  <div>
+    {{if .Completed}}
+    <input type="checkbox" onclick="window.location = '/tasks/{{ .ID }}/complete'">
+    <label><b>{{ .Title }}</b>: {{.Description}}</label>
+    {{end}}
+  </div>
+  {{ end }}
+</body>
+<p></p>
+
+<h3>Create new task</h3>
+<form method="post" action="./tasks/create">
+  <input placeholder="Task title" type="text" name="title"></input>
+  <br>
+  <input placeholder="Description" type="text" name="description"></input>
+  <br>
+  <input placeholder="priority" type="text" name="priority"></input>
+  <br>
+  <input type="submit" value="Submit">
+</form>
+
+<p></p>
+
+<form onsubmit="window.location = './delete'; return false;">
+  <input type="submit" value="Delete this folder">
+</form>
+
+</html>
+{{end}}

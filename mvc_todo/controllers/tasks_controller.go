@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
@@ -13,7 +15,7 @@ import (
 )
 
 type tasksRepo interface {
-	CreateTask(ctx context.Context, task *database.Task) error
+	CreateTask(ctx context.Context, task *database.Task) (uint64, error)
 	GetFolderTasks(ctx context.Context, folder string) ([]*database.Task, error)
 	GetTask(ctx context.Context, folder string, id uint64) (*database.Task, error)
 	UpdateTask(ctx context.Context, task *database.Task) error
@@ -57,26 +59,27 @@ func (c *TaskController) taskFromForm(r *http.Request) (*database.Task, error) {
 	}, nil
 }
 
-func (c *TaskController) createTask(w http.ResponseWriter, r *http.Request, ps httprouter.Params) error {
+func (c *TaskController) createTask(w http.ResponseWriter, r *http.Request, ps httprouter.Params) (uint64, error) {
 	folder := ps.ByName("name")
 	task, err := c.taskFromForm(r)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	task.Folder = folder
 	err = c.validateTask(task)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	err = c.tasks.CreateTask(r.Context(), task)
-	if err != nil {
-		return err
-	}
-	return nil
+	return c.tasks.CreateTask(r.Context(), task)
 }
 
 func (c *TaskController) CreateTask(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	WrapHandler(c.createTask)(w, r, ps)
+	_, err := c.createTask(w, r, ps)
+	if err != nil {
+		http.Error(w, err.Error(), ErrorCode(err))
+	} else {
+		http.Redirect(w, r, fmt.Sprintf("/folders/%s/tasks", ps.ByName("name")), http.StatusFound)
+	}
 	// TODO: redirect?
 }
 
@@ -85,7 +88,9 @@ func (c *TaskController) completeTask(w http.ResponseWriter, r *http.Request, ps
 	if folder == "" {
 		return NewUserError("folder name is required")
 	}
-	id := ps.ByName("id")
+	// split to <id>/complete
+	s := ps.ByName("id")
+	id := strings.TrimSuffix(s, "/complete")
 	if id == "" {
 		return NewUserError("task id is required")
 	}
@@ -97,7 +102,12 @@ func (c *TaskController) completeTask(w http.ResponseWriter, r *http.Request, ps
 }
 
 func (c *TaskController) CompleteTask(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	WrapHandler(c.completeTask)(w, r, ps)
+	if ps.ByName("id") == "create" {
+		c.CreateTask(w, r, ps)
+		return
+	} else {
+		WrapHandler(c.completeTask)(w, r, ps)
+	}
 }
 
 func (c *TaskController) listTasks(w http.ResponseWriter, r *http.Request, ps httprouter.Params) error {
@@ -109,6 +119,8 @@ func (c *TaskController) listTasks(w http.ResponseWriter, r *http.Request, ps ht
 		Title       string
 		Description string
 		Priority    string
+		Completed   bool
+		ID          string
 	}
 	var data struct {
 		Tasks []*RenderTask
@@ -122,9 +134,11 @@ func (c *TaskController) listTasks(w http.ResponseWriter, r *http.Request, ps ht
 			Title:       task.Title,
 			Description: task.Description,
 			Priority:    database.PriorityToString(task.Priority),
+			Completed:   task.DoneAt.IsZero() || task.DoneAt.Unix() == 0,
+			ID:          fmt.Sprintf("%d", task.ID),
 		})
 	}
-	return c.views.Index.Render(w, data)
+	return c.views.Tasks.Render(w, data)
 }
 
 func (c *TaskController) ListTasks(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

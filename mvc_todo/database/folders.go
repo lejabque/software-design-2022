@@ -59,7 +59,7 @@ func (r *FoldersRepo) ListFolders(ctx context.Context) ([]*Folder, error) {
 	for res.NextResultSet(ctx) {
 		for res.NextRow() {
 			var folder Folder
-			if err := res.Scan(&folder.Name); err != nil {
+			if err := res.ScanWithDefaults(&folder.Name); err != nil {
 				return nil, err
 			}
 			folders = append(folders, &folder)

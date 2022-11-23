@@ -49,12 +49,12 @@ func main() {
 	router := httprouter.New()
 	router.GET("/", foldersController.ListFolders)
 	router.GET("/folders", foldersController.ListFolders)
-	router.POST("/folders/:name/create", foldersController.CreateFolder)
-	router.POST("/folders/:name/delete", foldersController.DeleteFolder)
+	router.GET("/folders/:name/create", foldersController.CreateFolder)
+	router.GET("/folders/:name/delete", foldersController.DeleteFolder)
 
 	router.GET("/folders/:name/tasks", tasksController.ListTasks)
-	router.GET("/folders/:name/tasks/:id/create", tasksController.CreateTask)
-	router.GET("/folders/:name/tasks/:id/complete", tasksController.CompleteTask)
+	router.POST("/folders/:name/tasks/new/create", tasksController.CreateTask)
+	router.POST("/folders/:name/tasks/:id/complete", tasksController.CompleteTask)
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), router); err != nil {
 		panic(err)
 	}
