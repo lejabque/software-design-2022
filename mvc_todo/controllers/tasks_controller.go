@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
@@ -80,7 +79,6 @@ func (c *TaskController) CreateTask(w http.ResponseWriter, r *http.Request, ps h
 	} else {
 		http.Redirect(w, r, fmt.Sprintf("/folders/%s/tasks", ps.ByName("name")), http.StatusFound)
 	}
-	// TODO: redirect?
 }
 
 func (c *TaskController) completeTask(w http.ResponseWriter, r *http.Request, ps httprouter.Params) error {
@@ -88,9 +86,7 @@ func (c *TaskController) completeTask(w http.ResponseWriter, r *http.Request, ps
 	if folder == "" {
 		return NewUserError("folder name is required")
 	}
-	// split to <id>/complete
-	s := ps.ByName("id")
-	id := strings.TrimSuffix(s, "/complete")
+	id := ps.ByName("id")
 	if id == "" {
 		return NewUserError("task id is required")
 	}
@@ -102,12 +98,8 @@ func (c *TaskController) completeTask(w http.ResponseWriter, r *http.Request, ps
 }
 
 func (c *TaskController) CompleteTask(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	if ps.ByName("id") == "create" {
-		c.CreateTask(w, r, ps)
-		return
-	} else {
-		WrapHandler(c.completeTask)(w, r, ps)
-	}
+	WrapHandler(c.completeTask)(w, r, ps)
+	http.Redirect(w, r, fmt.Sprintf("/folders/%s/tasks", ps.ByName("name")), http.StatusFound)
 }
 
 func (c *TaskController) listTasks(w http.ResponseWriter, r *http.Request, ps httprouter.Params) error {
@@ -134,7 +126,7 @@ func (c *TaskController) listTasks(w http.ResponseWriter, r *http.Request, ps ht
 			Title:       task.Title,
 			Description: task.Description,
 			Priority:    database.PriorityToString(task.Priority),
-			Completed:   task.DoneAt.IsZero() || task.DoneAt.Unix() == 0,
+			Completed:   !(task.DoneAt.IsZero() || task.DoneAt.Unix() == 0),
 			ID:          fmt.Sprintf("%d", task.ID),
 		})
 	}

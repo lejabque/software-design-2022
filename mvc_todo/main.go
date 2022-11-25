@@ -53,8 +53,8 @@ func main() {
 	router.GET("/folders/:name/delete", foldersController.DeleteFolder)
 
 	router.GET("/folders/:name/tasks", tasksController.ListTasks)
-	router.POST("/folders/:name/tasks/new/create", tasksController.CreateTask)
-	router.POST("/folders/:name/tasks/:id/complete", tasksController.CompleteTask)
+	router.POST("/folders/:name/tasks/create", tasksController.CreateTask)
+	router.POST("/folders/:name/task/:id/complete", tasksController.CompleteTask)
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), router); err != nil {
 		panic(err)
 	}

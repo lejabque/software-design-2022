@@ -7,12 +7,14 @@
 
 <body>
   {{ range .Tasks }}
+  {{if not .Completed}}
   <div>
-    {{if .Completed}}
-    <input type="checkbox" onclick="window.location = '/tasks/{{ .ID }}/complete'">
-    <label><b>{{ .Title }}</b>: {{.Description}}</label>
-    {{end}}
+    <form method="POST" action="./task/{{ .ID }}/complete">
+      <input class="form-check-input" name="done" type="checkbox" value="true" onChange="this.form.submit()">
+      <label><b>{{ .Title }}</b>: {{.Description}} {{.Completed}}</label>
+    </form>
   </div>
+  {{end}}
   {{ end }}
 </body>
 <p></p>
