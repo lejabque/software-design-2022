@@ -1,0 +1,28 @@
+{{define "Folders"}}
+<html>
+
+<head>
+  <h1>Tasks Manager</h1>
+</head>
+
+<body>
+    <label>Folder:</label>
+    <select onchange="location = this.value;">
+      <option value="" selected disabled hidden>Choose here</option>
+      {{ range .Folders }}
+      <option value="./folders/{{ .Name }}/tasks">{{ .Name }}</option>
+      {{ end }}
+    </select>
+</body>
+<p></p>
+
+<h3>Create new folder </h3>
+
+<form onsubmit="window.location = '/folders/' + name.value + '/create'; return false;">
+  <input placeholder="Folder name" type="text" name="name"></input>
+  <input type="submit" value="Create">
+</form>
+</html>
+{{end}}
+
+{{define "sidebar"}}{{end}}

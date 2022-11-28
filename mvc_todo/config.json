@@ -1,0 +1,6 @@
+{
+    "ydb": {
+        "endpoint": "ydb.serverless.yandexcloud.net:2135",
+        "database": "/ru-central1/b1gtehrpagsafsspa168/etn09q1egvnpnl0s3vhu"
+    }
+}

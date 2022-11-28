@@ -1,0 +1,65 @@
+{{define "Tasks"}}
+<html>
+
+<head>
+  <h1>Tasks Manager</h1>
+</head>
+
+<body>
+  <h3>Your current tasks ordered by priority:</h3>
+  {{ range .Tasks }}
+  {{if not .Completed}}
+  <div>
+    <form method="POST" action="./task/{{ .ID }}/complete">
+      <input class="form-check-input" name="done" type="checkbox" value="true" onChange="this.form.submit()">
+      <label><b>{{ .Title }}</b>: {{.Description}}.</label>
+    </form>
+  </div>
+  {{end}}
+  {{ end }}
+</body>
+<p></p>
+
+<style>
+  label,
+
+  label {
+    margin-bottom: 10px;
+  }
+
+</style>
+
+<h3>Create new task</h3>
+<form method="post" action="./tasks/create">
+  <label>
+    <input placeholder="Title" type="text" name="title"></input>
+  </label>
+  <label>
+    <input placeholder="Description" type="text" name="description"></input>
+  </label>
+  <label>
+    <input placeholder="Priority" type="text" name="priority"></input>
+  </label>
+  <input type="submit" value="Submit">
+</form>
+
+<p></p>
+
+
+
+<div class='row'>
+  <div class='col'>
+    <div class='row'>
+      <form onsubmit="window.location = '/'; return false;" style="display: inline;">
+        <input type="submit" value="List folders">
+      </form>
+      <form onsubmit="window.location = './delete'; return false;" style="display: inline;">
+        <input type="submit" value="Delete this folder">
+      </form>
+    </div>
+  </div>
+</div>
+
+
+</html>
+{{end}}
