@@ -10,7 +10,10 @@ type Token interface {
 }
 
 type TokenVisitor interface {
-	Visit(token Token) error
+	// we don't have overloading in Go, so we need to have a separate method for each type
+	VisitOperation(token Token) error
+	VisitNumber(token Token) error
+	VisitParen(token Token) error
 }
 
 type Plus struct{}
@@ -20,7 +23,7 @@ func (p Plus) String() string {
 }
 
 func (p Plus) Accept(v TokenVisitor) error {
-	return v.Visit(p)
+	return v.VisitOperation(p)
 }
 
 type Minus struct{}
@@ -30,7 +33,7 @@ func (m Minus) String() string {
 }
 
 func (m Minus) Accept(v TokenVisitor) error {
-	return v.Visit(m)
+	return v.VisitOperation(m)
 }
 
 type Multiply struct{}
@@ -40,7 +43,7 @@ func (m Multiply) String() string {
 }
 
 func (m Multiply) Accept(v TokenVisitor) error {
-	return v.Visit(m)
+	return v.VisitOperation(m)
 }
 
 type Divide struct{}
@@ -50,7 +53,7 @@ func (d Divide) String() string {
 }
 
 func (d Divide) Accept(v TokenVisitor) error {
-	return v.Visit(d)
+	return v.VisitOperation(d)
 }
 
 type Number struct {
@@ -62,7 +65,7 @@ func (n Number) String() string {
 }
 
 func (n Number) Accept(v TokenVisitor) error {
-	return v.Visit(n)
+	return v.VisitNumber(n)
 }
 
 type LeftParen struct{}
@@ -72,7 +75,7 @@ func (l LeftParen) String() string {
 }
 
 func (l LeftParen) Accept(v TokenVisitor) error {
-	return v.Visit(l)
+	return v.VisitParen(l)
 }
 
 type RightParen struct{}
@@ -82,5 +85,5 @@ func (r RightParen) String() string {
 }
 
 func (r RightParen) Accept(v TokenVisitor) error {
-	return v.Visit(r)
+	return v.VisitParen(r)
 }

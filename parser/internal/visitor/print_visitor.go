@@ -14,7 +14,17 @@ func NewPrintVisitor(writer io.Writer) *PrintVisitor {
 	return &PrintVisitor{writer: writer}
 }
 
-func (p *PrintVisitor) Visit(token tokens.Token) error {
+func (p *PrintVisitor) VisitOperation(token tokens.Token) error {
+	_, err := p.writer.Write([]byte(token.String()))
+	return err
+}
+
+func (p *PrintVisitor) VisitNumber(token tokens.Token) error {
+	_, err := p.writer.Write([]byte(token.String()))
+	return err
+}
+
+func (p *PrintVisitor) VisitParen(token tokens.Token) error {
 	_, err := p.writer.Write([]byte(token.String()))
 	return err
 }
