@@ -14,16 +14,16 @@ type CalcVisitor struct {
 var ErrNotEnoughOperands = errors.New("not enough operands in expression")
 var ErrIncorrectExpression = errors.New("incorrect expression")
 
-func (c *CalcVisitor) visitNumber(token tokens.Token) error {
+func (c *CalcVisitor) VisitNumber(token tokens.Token) error {
 	c.stack = append(c.stack, token.(tokens.Number).Value)
 	return nil
 }
 
-func (c *CalcVisitor) visitBrace(token tokens.Token) error {
+func (c *CalcVisitor) VisitParen(token tokens.Token) error {
 	return errors.New("Not supported in CalcVisitor, RPN only")
 }
 
-func (c *CalcVisitor) visitOperation(token tokens.Token) error {
+func (c *CalcVisitor) VisitOperation(token tokens.Token) error {
 	if len(c.stack) < 2 {
 		return ErrNotEnoughOperands
 	}
@@ -47,19 +47,6 @@ func (c *CalcVisitor) visitOperation(token tokens.Token) error {
 	}
 
 	return nil
-}
-
-func (c *CalcVisitor) Visit(token tokens.Token) error {
-	switch token.(type) {
-	case tokens.Number:
-		return c.visitNumber(token)
-	case tokens.Plus, tokens.Minus, tokens.Multiply, tokens.Divide:
-		return c.visitOperation(token)
-	case tokens.LeftParen, tokens.RightParen:
-		return c.visitBrace(token)
-	default: // should never happen
-		panic(fmt.Errorf("unknown token type %T", token))
-	}
 }
 
 func (c *CalcVisitor) VisitMultiple(tokens []tokens.Token) (int64, error) {

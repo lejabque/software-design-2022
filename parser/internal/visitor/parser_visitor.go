@@ -19,12 +19,12 @@ type ParserVisitor struct {
 	result []tokens.Token
 }
 
-func (p *ParserVisitor) visitNumber(token tokens.Token) error {
+func (p *ParserVisitor) VisitNumber(token tokens.Token) error {
 	p.result = append(p.result, token)
 	return nil
 }
 
-func (p *ParserVisitor) visitBrace(token tokens.Token) error {
+func (p *ParserVisitor) VisitParen(token tokens.Token) error {
 	switch token.(type) {
 	case tokens.LeftParen:
 		p.stack = append(p.stack, token)
@@ -49,7 +49,7 @@ func (p *ParserVisitor) visitBrace(token tokens.Token) error {
 	return nil
 }
 
-func (p *ParserVisitor) visitOperation(token tokens.Token) error {
+func (p *ParserVisitor) VisitOperation(token tokens.Token) error {
 Loop:
 	for len(p.stack) > 0 {
 		switch top := p.stack[len(p.stack)-1].(type) {
@@ -72,22 +72,9 @@ Loop:
 	return nil
 }
 
-func (p *ParserVisitor) Visit(token tokens.Token) error {
-	switch token.(type) {
-	case tokens.Number:
-		return p.visitNumber(token)
-	case tokens.Plus, tokens.Minus, tokens.Multiply, tokens.Divide:
-		return p.visitOperation(token)
-	case tokens.LeftParen, tokens.RightParen:
-		return p.visitBrace(token)
-	default:
-		panic(fmt.Errorf("unknown token type %T", token))
-	}
-}
-
 func (p *ParserVisitor) VisitMultiple(tokensToVisit []tokens.Token) ([]tokens.Token, error) {
 	for _, token := range tokensToVisit {
-		if err := p.Visit(token); err != nil {
+		if err := token.Accept(p); err != nil {
 			return nil, err
 		}
 	}
