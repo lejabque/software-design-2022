@@ -8,13 +8,7 @@ public class MatrixGraph extends Graph {
         super(drawingApi);
         this.matrix = matrix;
 
-        int vertexesCount = 0;
-        for (var row : matrix) {
-            for (var cell : row) {
-                vertexesCount += cell ? 1 : 0;
-            }
-        }
-        this.vertexesCount = vertexesCount;
+        this.vertexesCount = matrix.size();
     }
 
     @Override

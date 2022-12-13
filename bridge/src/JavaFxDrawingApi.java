@@ -35,8 +35,8 @@ public class JavaFxDrawingApi implements DrawingApi {
     public void drawCircle(Circle circle) {
         var center = circle.center();
         var radius = circle.radius();
-        gc.setFill(Color.GREEN);
-        gc.fillOval(center.x(), center.y(), radius, radius);
+        gc.setFill(Color.BLUE);
+        gc.fillOval(center.x() - radius, center.y() - radius, radius * 2, radius * 2);
     }
 
     @Override

@@ -18,12 +18,7 @@ public class AwtDrawGraph extends Frame {
 
         DrawingApi drawingApi = new AwtDrawingApi((Graphics2D) g, 1280, 720);
         Graph graph = new ListsGraph(List.of(
-                new Edge(0, 1),
-                new Edge(0, 2),
-                new Edge(0, 3),
-                new Edge(1, 2),
-                new Edge(1, 3),
-                new Edge(2, 3)
+                new Edge(0, 1)
         ), drawingApi);
         graph.drawGraph();
 

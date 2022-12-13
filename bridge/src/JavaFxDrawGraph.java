@@ -13,12 +13,7 @@ public class JavaFxDrawGraph {
         public void start(Stage primaryStage) {
             DrawingApi drawingApi = new JavaFxDrawingApi(primaryStage, 1280, 720);
             Graph graph = new ListsGraph(List.of(
-                    new Edge(0, 1),
-                    new Edge(0, 2),
-                    new Edge(0, 3),
-                    new Edge(1, 2),
-                    new Edge(1, 3),
-                    new Edge(2, 3)
+                    new Edge(0, 1)
             ), drawingApi);
             graph.drawGraph();
 

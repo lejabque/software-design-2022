@@ -27,8 +27,8 @@ public class AwtDrawingApi implements DrawingApi {
     public void drawCircle(Circle circle) {
         var center = circle.center();
         var radius = circle.radius();
-        graphics.setColor(Color.GREEN);
-        graphics.fillOval((int) center.x(), (int) center.y(), (int) radius, (int) radius);
+        graphics.setColor(Color.BLUE);
+        graphics.fillOval((int) (center.x() - radius), (int) (center.y() - radius), (int) radius * 2, (int) radius * 2);
     }
 
     @Override

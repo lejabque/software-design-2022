@@ -28,13 +28,15 @@ public abstract class Graph {
 
     private void drawVertex(int vertex) {
         var center = getVertexPoint(vertex);
-        var radius = 10;
+        var radius = 20;
         drawingApi.drawCircle(new Circle(center, radius));
     }
 
     private Point getVertexPoint(int vertex) {
-        var x = (vertex + 1) * drawingApi.getDrawingAreaWidth() / (vertexesCount() + 1);
-        var y = drawingApi.getDrawingAreaHeight() / 2;
-        return new Point(x, y);
+        var meshSize = (long) Math.ceil(Math.sqrt(vertexesCount()));
+        var x = vertex % meshSize + 1; // [1, .., meshSize]
+        var y = vertex / meshSize + 1;
+        return new Point(x * drawingApi.getDrawingAreaWidth() / (meshSize + 1),
+                y * drawingApi.getDrawingAreaHeight() / (meshSize + 1));
     }
 }

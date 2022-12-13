@@ -16,7 +16,7 @@ public class ListsGraph extends Graph {
             vertexesCount = Math.max(vertexesCount, edge.from());
             vertexesCount = Math.max(vertexesCount, edge.to());
         }
-        this.vertexesCount = vertexesCount;
+        this.vertexesCount = vertexesCount + 1;
     }
 
     @Override
