@@ -12,18 +12,9 @@ public class JavaFxDrawGraph {
         @Override
         public void start(Stage primaryStage) {
             DrawingApi drawingApi = new JavaFxDrawingApi(primaryStage, 1280, 720);
-            Graph graph = new ListsGraph(List.of(
-                    new Edge(0, 1)
-            ), drawingApi);
-            graph.drawGraph();
 
-            // Graph graph = new MatrixGraph(List.of(
-            //         List.of(false, true, true, true),
-            //         List.of(true, false, true, true),
-            //         List.of(true, true, false, true),
-            //         List.of(true, true, true, false)
-            // ), drawingApi);
-            // graph.drawGraph();
+            Examples.drawList(drawingApi);
+            // Examples.drawMatrix(drawingApi);
         }
     }
 
