@@ -1,4 +1,8 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 record Edge(int from, int to) {
 }
@@ -17,6 +21,23 @@ public class ListsGraph extends Graph {
             vertexesCount = Math.max(vertexesCount, edge.to());
         }
         this.vertexesCount = vertexesCount + 1;
+    }
+
+
+    public ListsGraph(DrawingApi drawingApi) {
+        this(readMatrixFromStdin(), drawingApi);
+    }
+
+    private static List<Edge> readMatrixFromStdin() {
+        try (var scanner = new Scanner(System.in)) {
+            int vertexesCount = scanner.nextInt();
+            int edgesCount = scanner.nextInt();
+            var edges = new ArrayList<Edge>(edgesCount);
+            for (int i = 0; i < edgesCount; i++) {
+                edges.add(new Edge(scanner.nextInt(), scanner.nextInt()));
+            }
+            return edges;
+        }
     }
 
     @Override

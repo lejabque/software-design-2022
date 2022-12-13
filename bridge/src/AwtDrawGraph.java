@@ -1,14 +1,15 @@
-import javafx.application.Application;
-import javafx.stage.Stage;
-
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Ellipse2D;
-import java.util.List;
+import java.util.function.Function;
 
 
-public class AwtDrawGraph extends Frame {
+public class AwtDrawGraph extends Frame implements GraphDrawerApplication {
+    private final Function<DrawingApi, Graph> GraphFactory;
+
+    AwtDrawGraph(Function<DrawingApi, Graph> graphFactory) {
+        this.GraphFactory = graphFactory;
+    }
 
     @Override
     public void paint(Graphics g) {
@@ -17,19 +18,17 @@ public class AwtDrawGraph extends Frame {
         graphics2D.clearRect(0, 0, 1280, 720);
 
         DrawingApi drawingApi = new AwtDrawingApi((Graphics2D) g, 1280, 720);
-
-        // Examples.drawList(drawingApi);
-        Examples.drawMatrix(drawingApi);
+        var graph = GraphFactory.apply(drawingApi);
+        graph.drawGraph();
     }
 
-    public static void main(String[] args) {
-        Frame frame = new AwtDrawGraph();
-        frame.addWindowListener(new WindowAdapter() {
+    public void drawGraph() {
+        this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
                 System.exit(0);
             }
         });
-        frame.setSize(1280, 720);
-        frame.setVisible(true);
+        this.setSize(1280, 720);
+        this.setVisible(true);
     }
 }
