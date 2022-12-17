@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	stats := eventstats.NewStats(clock.RealClock{})
+	stats := eventstats.NewEventStats(clock.RealClock{})
 	stats.IncEvent("event1")
 	stats.IncEvent("event2")
 	stats.IncEvent("event1")

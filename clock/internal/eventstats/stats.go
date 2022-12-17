@@ -7,55 +7,62 @@ import (
 	"github.com/lejabque/software-design-2022/clock/internal/clock"
 )
 
-type Stats struct {
-	// requests per minute for last hour
-	counters map[string][]time.Time
+type event struct {
+	name string
+	time time.Time
+}
+
+type EventStats struct {
+	counters map[string]int64
+	events   []event
 	timer    clock.Clock
 }
 
-func NewStats(timer clock.Clock) *Stats {
-	return &Stats{
-		counters: make(map[string][]time.Time),
+func NewEventStats(timer clock.Clock) *EventStats {
+	return &EventStats{
+		counters: make(map[string]int64),
 		timer:    timer,
 	}
 }
 
-func (s *Stats) IncEvent(name string) {
-	s.counters[name] = append(s.counters[name], s.timer.Now())
-	// cleanup old events:
+func (s *EventStats) IncEvent(name string) {
 	now := s.timer.Now()
-	for i, t := range s.counters[name] {
-		if now.Sub(t) > time.Hour {
-			s.counters[name] = s.counters[name][i:]
-			break
-		}
-	}
+	s.counters[name]++
+	s.events = append(s.events, event{name: name, time: now})
+	s.cleanup(now)
 }
 
-func (s *Stats) GetEventStatsByName(name string) float64 {
-	now := s.timer.Now()
-	count := 0
-	for _, t := range s.counters[name] {
-		if now.Sub(t) < time.Hour {
-			count++
-		}
-	}
-	// return requests per minute
-	return float64(count) / 60.0
+func (s *EventStats) GetEventStatsByName(name string) float64 {
+	s.cleanup(s.timer.Now())
+	return float64(s.counters[name]) / 60
 }
 
-func (s *Stats) GetAllEventStats() map[string]float64 {
+func (s *EventStats) GetAllEventStats() map[string]float64 {
+	s.cleanup(s.timer.Now())
 	stats := make(map[string]float64)
-	for name := range s.counters {
-		stats[name] = s.GetEventStatsByName(name)
+	for name, count := range s.counters {
+		stats[name] = float64(count) / 60
 	}
 	return stats
 }
 
-func (s *Stats) PrintStatistic() {
-	// print statistic for event with name
+func (s *EventStats) PrintStatistic() {
 	stats := s.GetAllEventStats()
 	for name, count := range stats {
 		fmt.Printf("%s: %f requests per minute\n", name, count)
 	}
+}
+
+func (s *EventStats) cleanup(now time.Time) {
+	removed := 0
+	for removed < len(s.events) && now.Sub(s.events[removed].time) > time.Hour {
+		name := s.events[removed].name
+		s.counters[name]--
+		if s.counters[name] == 0 {
+			delete(s.counters, name)
+		}
+		removed++
+	}
+	// we assume that slicing works in O(1) time
+	s.events = s.events[removed:]
 }
