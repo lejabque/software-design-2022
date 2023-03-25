@@ -1,8 +1,11 @@
 package exchange
 
-import "errors"
+import (
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
+)
 
-// todo: grpc
-var ErrStockNotFound = errors.New("stock not found")
+// make grpc errors
+var ErrStockNotFound = status.Error(codes.NotFound, "stock not found")
 
-var ErrNotEnoughStocks = errors.New("not enough stocks")
+var ErrNotEnoughStocks = status.Error(codes.FailedPrecondition, "not enough stocks")
