@@ -1,0 +1,40 @@
+syntax = "proto3";
+package exchange;
+
+option go_package = "./exchange";
+
+message StockPriceRequest { string name = 1; }
+
+message StockPriceResponse {
+  double price = 1;
+  int64 amount = 2;
+}
+
+message BuyRequest {
+  string name = 1;
+  int64 amount = 2;
+}
+
+message BuyResponse { double price = 1; }
+
+message SellRequest {
+  string name = 1;
+  int64 amount = 2;
+}
+
+message SellResponse { double price = 1; }
+
+message SetStockDataRequest {
+  string name = 1;
+  double price = 2;
+  int64 amount = 3;
+}
+
+message SetStockDataResponse {}
+
+service StockExchange {
+  rpc GetStockPrice(StockPriceRequest) returns (StockPriceResponse) {}
+  rpc BuyStock(BuyRequest) returns (BuyResponse) {}
+  rpc SellStock(SellRequest) returns (SellResponse) {}
+  rpc SetStockData(SetStockDataRequest) returns (SetStockDataResponse) {}
+}
