@@ -1,26 +1,30 @@
-package account
+package repos
 
-import sync "sync"
+import (
+	sync "sync"
+
+	"github.com/lejabque/software-design-2022/testcontainers/internal/api/accountapi"
+)
 
 type inMemoryAccounts struct {
 	lock     *sync.Mutex
-	accounts map[string]*Account
+	accounts map[string]*accountapi.Account
 }
 
 func NewInMemoryAccountsStorage() *inMemoryAccounts {
 	return &inMemoryAccounts{
 		lock:     &sync.Mutex{},
-		accounts: make(map[string]*Account),
+		accounts: make(map[string]*accountapi.Account),
 	}
 }
 
-func (s *inMemoryAccounts) UpdateAccount(account *Account) {
+func (s *inMemoryAccounts) UpdateAccount(account *accountapi.Account) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	s.accounts[account.Id] = account
 }
 
-func (s *inMemoryAccounts) GetAccount(id string) *Account {
+func (s *inMemoryAccounts) GetAccount(id string) *accountapi.Account {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	return s.accounts[id]

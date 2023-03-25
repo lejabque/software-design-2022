@@ -4,14 +4,16 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/lejabque/software-design-2022/testcontainers/exchange"
-	"github.com/lejabque/software-design-2022/testcontainers/internal/app"
+	"github.com/lejabque/software-design-2022/testcontainers/internal/api/accountapi"
+	"github.com/lejabque/software-design-2022/testcontainers/internal/api/exchangeapi"
+	"github.com/lejabque/software-design-2022/testcontainers/internal/lib"
+	"github.com/lejabque/software-design-2022/testcontainers/internal/repos"
 	"go.uber.org/zap"
 	grpc "google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
-func Run(args *app.CliArgs) {
+func Run(args *lib.CliArgs) {
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", args.Port))
 	if err != nil {
 		panic(err)
@@ -25,8 +27,8 @@ func Run(args *app.CliArgs) {
 	if err != nil {
 		panic(err)
 	}
-	accounts := NewAccountServer(NewInMemoryAccountsStorage(), exchange.NewStockExchangeClient(exchangeConn))
-	RegisterAccountServiceServer(s, accounts)
+	accounts := NewAccountServer(repos.NewInMemoryAccountsStorage(), exchangeapi.NewStockExchangeClient(exchangeConn))
+	accountapi.RegisterAccountServiceServer(s, accounts)
 
 	reflection.Register(s)
 	logger.Info("starting server", zap.Uint16("port", args.Port))

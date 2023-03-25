@@ -1,7 +1,7 @@
 syntax = "proto3";
-package exchange;
+package exchangeapi;
 
-option go_package = "./exchange";
+option go_package = "./exchangeapi";
 
 message StockPriceRequest { string name = 1; }
 

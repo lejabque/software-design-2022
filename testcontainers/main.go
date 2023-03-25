@@ -4,8 +4,9 @@ package main
 // use cobra to choose app (using cli arg)
 
 import (
-	"github.com/lejabque/software-design-2022/testcontainers/account"
-	"github.com/lejabque/software-design-2022/testcontainers/internal/app"
+	"github.com/lejabque/software-design-2022/testcontainers/internal/account"
+	"github.com/lejabque/software-design-2022/testcontainers/internal/exchange"
+	"github.com/lejabque/software-design-2022/testcontainers/internal/lib"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +22,7 @@ var exchangeCmd = &cobra.Command{
 	Use:   "exchange",
 	Short: "Run exchange app",
 	Run: func(cmd *cobra.Command, args []string) {
-		account.Run(&cliArgs)
+		exchange.Run(&cliArgs)
 	},
 }
 
@@ -33,10 +34,12 @@ var accountCmd = &cobra.Command{
 	},
 }
 
-var cliArgs app.CliArgs
+var cliArgs lib.CliArgs
 
 func main() {
 	rootCmd.PersistentFlags().Uint16VarP(&cliArgs.Port, "port", "p", 8080, "port")
+
+	accountCmd.PersistentFlags().StringVarP(&cliArgs.ExchangeEndpoint, "exchange", "e", "localhost:8081", "exchange endpoint")
 
 	rootCmd.AddCommand(exchangeCmd, accountCmd)
 	rootCmd.Execute()

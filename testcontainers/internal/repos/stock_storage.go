@@ -1,6 +1,10 @@
-package exchange
+package repos
 
-import sync "sync"
+import (
+	sync "sync"
+
+	"github.com/lejabque/software-design-2022/testcontainers/internal/lib"
+)
 
 type StockData struct {
 	Price float64
@@ -30,7 +34,7 @@ func (s *inMemoryStocks) GetStockData(name string) (*StockData, error) {
 	defer s.lock.Unlock()
 	data, ok := s.stocks[name]
 	if !ok {
-		return nil, ErrStockNotFound
+		return nil, lib.ErrStockNotFound
 	}
 	return data, nil
 }
@@ -40,10 +44,10 @@ func (s *inMemoryStocks) BuyStock(name string, amount int64) (float64, error) {
 	defer s.lock.Unlock()
 	data, ok := s.stocks[name]
 	if !ok {
-		return 0, ErrStockNotFound
+		return 0, lib.ErrStockNotFound
 	}
 	if data.Count < amount {
-		return 0, ErrNotEnoughStocks
+		return 0, lib.ErrNotEnoughStocks
 	}
 	data.Count -= amount
 	return data.Price, nil
@@ -54,7 +58,7 @@ func (s *inMemoryStocks) SellStock(name string, amount int64) (float64, error) {
 	defer s.lock.Unlock()
 	data, ok := s.stocks[name]
 	if !ok {
-		return 0, ErrStockNotFound
+		return 0, lib.ErrStockNotFound
 	}
 	data.Count += amount
 	return data.Price, nil

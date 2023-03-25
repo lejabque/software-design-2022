@@ -1,7 +1,7 @@
 syntax = "proto3";
-package account;
+package accountapi;
 
-option go_package = "./account";
+option go_package = "./accountapi";
 
 message Account {
   string id = 1;
