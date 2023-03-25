@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+export GOARCh=amd64 GOOS=linux
+
 # build protos
 protoc --proto_path=internal/api internal/api/*.proto --go_out=internal/api --go-grpc_out=internal/api
 
@@ -8,5 +10,4 @@ protoc --proto_path=internal/api internal/api/*.proto --go_out=internal/api --go
 go build .
 
 # build docker images
-docker build -t exchange -f ExchangeDockerfile .
-docker build -t account -f AccountDockerfile .
+docker build --platform linux/amd64 -t exchange -f ExchangeDockerfile .

@@ -5,6 +5,7 @@ import (
 
 	"github.com/lejabque/software-design-2022/testcontainers/internal/api/accountapi"
 	"github.com/lejabque/software-design-2022/testcontainers/internal/api/exchangeapi"
+	"github.com/lejabque/software-design-2022/testcontainers/internal/lib"
 )
 
 type AccountsStorage interface {
@@ -76,6 +77,9 @@ func (s *accountServer) SellStocks(ctx context.Context, req *accountapi.SellRequ
 
 func (s *accountServer) GetAccount(ctx context.Context, req *accountapi.GetAccountRequest) (*accountapi.GetAccountResponse, error) {
 	account := s.accounts.GetAccount(req.Id)
+	if account == nil {
+		return nil, lib.ErrAccountNotFound
+	}
 	return &accountapi.GetAccountResponse{
 		Account: account,
 	}, nil

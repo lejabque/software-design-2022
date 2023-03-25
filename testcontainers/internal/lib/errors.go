@@ -8,3 +8,5 @@ import (
 var ErrStockNotFound = status.Error(codes.NotFound, "stock not found")
 
 var ErrNotEnoughStocks = status.Error(codes.FailedPrecondition, "not enough stocks")
+
+var ErrAccountNotFound = status.Error(codes.NotFound, "account not found")

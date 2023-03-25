@@ -7,8 +7,8 @@ import (
 )
 
 type StockData struct {
-	Price float64
-	Count int64
+	Price  float64
+	Amount int64
 }
 
 type inMemoryStocks struct {
@@ -46,10 +46,10 @@ func (s *inMemoryStocks) BuyStock(name string, amount int64) (float64, error) {
 	if !ok {
 		return 0, lib.ErrStockNotFound
 	}
-	if data.Count < amount {
+	if data.Amount < amount {
 		return 0, lib.ErrNotEnoughStocks
 	}
-	data.Count -= amount
+	data.Amount -= amount
 	return data.Price, nil
 }
 
@@ -60,14 +60,16 @@ func (s *inMemoryStocks) SellStock(name string, amount int64) (float64, error) {
 	if !ok {
 		return 0, lib.ErrStockNotFound
 	}
-	data.Count += amount
+	data.Amount += amount
 	return data.Price, nil
 }
 
 func (s *inMemoryStocks) SetStockData(name string, price float64, amount int64) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
-	s.stocks[name].Price = price
-	s.stocks[name].Count = amount
+	s.stocks[name] = &StockData{
+		Price:  price,
+		Amount: amount,
+	}
 	return nil
 }

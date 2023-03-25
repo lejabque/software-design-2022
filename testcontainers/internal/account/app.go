@@ -27,6 +27,7 @@ func Run(args *lib.CliArgs) {
 	if err != nil {
 		panic(err)
 	}
+	defer exchangeConn.Close()
 	accounts := NewAccountServer(repos.NewInMemoryAccountsStorage(), exchangeapi.NewStockExchangeClient(exchangeConn))
 	accountapi.RegisterAccountServiceServer(s, accounts)
 
