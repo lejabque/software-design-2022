@@ -1,0 +1,55 @@
+syntax = "proto3";
+package accountapi;
+
+option go_package = "./accountapi";
+
+message Account {
+  string id = 1;
+  double balance = 2;
+  // stock name -> amount
+  map<string, int64> stocks = 3;
+}
+
+message GetAccountRequest { string id = 1; }
+
+message GetAccountResponse { Account account = 1; }
+
+message CreateAccountRequest { string id = 1; }
+
+message CreateAccountResponse {}
+
+message DepositRequest {
+  string id = 1;
+  double amount = 2;
+}
+
+message DepositResponse {}
+
+message TotalBalanceRequest { string id = 1; }
+
+message TotalBalanceResponse { double balance = 1; }
+
+message BuyRequest {
+  string id = 1;
+  string stock_name = 2;
+  int64 amount = 3;
+}
+
+message BuyResponse { double price = 1; }
+
+message SellRequest {
+  string id = 1;
+  string stock_name = 2;
+  int64 amount = 3;
+}
+
+message SellResponse { double price = 1; }
+
+service AccountService {
+  rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse) {}
+  rpc GetAccount(GetAccountRequest) returns (GetAccountResponse) {}
+  rpc Deposit(DepositRequest) returns (DepositResponse) {}
+  rpc TotalBalance(TotalBalanceRequest) returns (TotalBalanceResponse) {}
+  rpc BuyStocks(BuyRequest) returns (BuyResponse) {}
+  rpc SellStocks(SellRequest) returns (SellResponse) {}
+}
